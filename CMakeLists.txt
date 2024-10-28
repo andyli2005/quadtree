@@ -10,6 +10,18 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 14)
 include_directories(include)
 
+if (NOT BUILD_CODEGRADE_TESTS)
+    add_executable(run_part1_tests tests/src/write_unit_test.c src/image.c)
+    target_compile_options(run_part1_tests PUBLIC -g -Wall -Wextra -Wshadow -Wpedantic -Wdouble-promotion -Wformat=2 -Wundef -Werror)
+    target_include_directories(run_part1_tests PUBLIC include tests/include)
+    target_link_libraries(run_part1_tests PUBLIC gtest gtest_main pthread m)
+
+    add_executable(run_part2_tests tests/src/part2_tests.c src/image.c src/qtree.c)
+    target_compile_options(run_part2_tests PUBLIC -g -Wall -Wextra -Wshadow -Wpedantic -Wdouble-promotion -Wformat=2 -Wundef -Werror)
+    target_include_directories(run_part2_tests PUBLIC include tests/include)
+    target_link_libraries(run_part2_tests PUBLIC gtest gtest_main pthread m)
+ endif()
+
 # Build the normal executable. Suitable for use with Valgrind.
 add_executable(hw3_main src/qtree.c src/image.c src/hw3_main.c tests/src/tests_utils.c)
 target_compile_options(hw3_main PUBLIC -g -Wall -Wextra -Wshadow -Wpedantic -Wdouble-promotion -Wformat=2 -Wundef -Werror)
