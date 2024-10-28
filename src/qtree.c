@@ -155,9 +155,54 @@ void delete_quadtree(QTNode *root) {
 //     }
 // }
 
+void save_qtree_as_ppm_helper(QTNode *root, FILE *write, unsigned int* intensity_values, int width){
+    if(root == NULL){
+        return;
+    }
+
+    if(root->node_type == 'L'){
+        for(int i = 0; i < root->height; i++){
+            for(int j = 0; j < root->width; j++){
+                int starting_row = i + root->starting_row;
+                int starting_col = j + root->starting_col;
+                int intensity = root->intensity;
+                intensity_values[starting_row * width + starting_col] = intensity;
+            }
+        }
+    } else {
+        save_qtree_as_ppm_helper(root->child1, write, intensity_values, width);
+        save_qtree_as_ppm_helper(root->child2, write, intensity_values, width);
+        save_qtree_as_ppm_helper(root->child3, write, intensity_values, width);
+        save_qtree_as_ppm_helper(root->child4, write, intensity_values, width);
+    }
+
+
+}
+
 void save_qtree_as_ppm(QTNode *root, char *filename) {
-    (void)root;
-    (void)filename;
+    FILE *write = fopen(filename, "w");
+
+    if(write == NULL){
+        return;
+    }
+
+    fprintf(write, "%s\n", "P3");
+    fprintf(write, "%d %d\n", root->width, root->height);
+    fprintf(write, "255\n");
+
+    unsigned int *intensity_values = malloc(sizeof(unsigned int) * root->width * root->height);
+
+    save_qtree_as_ppm_helper(root, write, intensity_values, root->width);
+
+    for(int i = 0; i < root->width * root->height; i++){
+        fprintf(write, "%u %u %u \n", intensity_values[i], intensity_values[i], intensity_values[i]);
+    }
+
+    free(intensity_values);
+    fclose(write);
+
+
+
     //  FILE *write = fopen(filename, "w");
     //  int *intensity_values = malloc(sizeof(int) * root->width * root->height);
     //  save_qtree_as_ppm_helper(root, intensity_values, root->width);
